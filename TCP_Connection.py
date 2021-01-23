@@ -26,16 +26,16 @@ def drive_from_phone(speed, angle):
 	speed = speed * 25
 	speed = 255 if speed > 255 else speed # Cap off at maximum
 
-	if (angle > 2.5):
+	if (angle > 10):
 		direction = 'RIGHT'
 		strength = 30
-	elif (angle < 2.5):
+	elif (angle <-10):
 		direction = 'LEFT'
 		strength = 30
 	else:
 		direction = 'STRAIGHT'
 		strength = 0
-
+                
 	Control.drive(int(speed), direction, int(strength))
 
 print("Opened a connection on port "+ str(PORT))
@@ -53,8 +53,9 @@ while True:
 			else:
 				#do something with the data received
 				list_data = data.split(",")
-				if (len(list_data) == 3 and len(list_data[1]) > 2 and len(list_data[2]) > 2):
-					drive_from_phone(float(list_data[2]), float(list_data[1]))
+				if (len(list_data) == 3):
+                                        [speed,angle]=get_strength(float(list_data[2]),float(list_data[1]))
+					drive_from_phone(speed,angle)
 	except KeyboardInterrupt:
 		print("\n\n===== \nClosed")
 		TCPServer_Socket.close()
