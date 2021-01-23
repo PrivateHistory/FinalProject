@@ -54,7 +54,7 @@ while True:
 				#do something with the data received
 				list_data = data.split(",")
 				if (len(list_data) == 3):
-                                        [speed,angle]=get_strength(float(list_data[2]),float(list_data[1]))
+                                        [speed,angle]=get_strength(float(list_data[1]),float(list_data[2]))
 					drive_from_phone(speed,angle)
 	except KeyboardInterrupt:
 		print("\n\n===== \nClosed")
