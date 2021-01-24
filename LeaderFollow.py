@@ -20,10 +20,10 @@ while(True):
             if cv2.contourArea(c) < 300:
                 continue
             (x, y, w, h) = cv2.boundingRect(c)
-            deviation=(w_frame/2-(x+w/2))*100/w_frame
-            #do something with deviation
-            #Use a PID            
-            print("Deviation "+str(deviation))
+            deviation_translation=(w_frame/2-(x+w/2))*100/w_frame
+            deviation_rotation=(h_frame-w_frame)*100/h_frame
+            #put deviations in PID as a sume of deviations
+            print("Deviation translation "+str(deviation_translation)+ " Deviation in rotation "+str(deviation_rotation))
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2) 
         cv2.imshow("Final",frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
