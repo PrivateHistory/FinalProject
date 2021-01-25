@@ -1,9 +1,10 @@
 from socket import *
 from math import sin,cos
-#import gopigo3
+import gopigo3
+#import easygopigo3
 import time
 #global variables
-THRESHOLD=0.7
+THRESHOLD=2.5
 #everybody can connect
 HOST='' 
 PORT=21555
@@ -12,44 +13,53 @@ ADDR=(HOST,PORT)
 TCPServer_Socket=socket(AF_INET,SOCK_STREAM)
 TCPServer_Socket.bind(ADDR)
 TCPServer_Socket.listen()
+
+robot = gopigo3.GoPiGo3()
 #Previous values
 check=True
 
 #PID
-ks=20
-ka=0.5
+ks=30
+ka=20
+
 def get_strength(y,z):
-  strength=round(z,2)
-  angle=round(y*90/9.8,0)
-  return [strength,strenght]
+	strength=round(z,2)
+	angle=round(y*90/9.8,0)
+	return [strength*cos(angle),strength*sin(angle)]
+
 def move(strength,angle):
-                global check,ks,ka
-                left_motor_speed=int(ks*strength+ka*angle)
-                right_motor_speed=int(ks*strength-ka*angle)
-                gopigo3.set_motor_dps(gopigo3.MOTOR_LEFT, dps=left_motor_speed)
-                gopigo3.set_motor_dps(gopigo3.MOTOR_RIGHT, dps=right_motor_speed)
-                time.sleep(0.01)
-                check=True                
-while True:
-    print("Waiting for connection ...")
-    conn,addr=TCPServer_Socket.accept()
-    print("Connection established to "+str(addr))
-    try:
-        while True:
-           data=''
-           data=conn.recv(BUFFSIZE).decode('ascii')
-           if not data:
-                break
-           else:
-                #do something with the data received
-                list_data=data.split(",")
-                if(len(list_data)==3):
-                    print(get_strength(float(list_data[1]),float(list_data[2]))   
-                    [strength,angle]=get_strength(float(list_data[1]),float(list_data[2]))
-                    if(check):
-                      move(strength,angle)
-                  
-                  #do something with data from get_strenth firts one is the power and second is the angle
-    except KeyboardInterrupt:
-        print("Closed")
-TCPServer_Socket.close()
+	global check,ks,ka
+	check=False
+	left_motor_speed=int(ks*strength+ka*angle)
+	right_motor_speed=int(ks*strength-ka*angle)
+	robot.set_motor_dps(robot.MOTOR_LEFT, dps=left_motor_speed)
+	robot.set_motor_dps(robot.MOTOR_RIGHT, dps=right_motor_speed)
+	time.sleep(0.01)
+	check=True
+
+print("Opened a connection on port "+ str(PORT))
+
+try:
+	while True:
+		#print("Waiting for connection ...")
+		conn,addr=TCPServer_Socket.accept()
+		#print("Connection established to "+str(addr))
+		
+		while True:
+			data=''
+			data=conn.recv(BUFFSIZE).decode('ascii')
+			if not data:
+				break
+			elif check:
+				#do something with the data received
+				list_data=data.split(",")
+				if (len(list_data) == 3 and len(list_data[1]) > 2 and len(list_data[2]) > 2):
+					strength, angle = float(list_data[2]), float(list_data[1])
+					print("Strenght: %.4f\t\tAngle: %.4f" % (strength, angle))
+					move(strength,angle)
+
+except KeyboardInterrupt:
+	print("\n\n=====\nConnection closed")
+finally:
+	TCPServer_Socket.close()
+	robot.reset_all()
