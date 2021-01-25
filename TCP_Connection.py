@@ -1,6 +1,6 @@
 from socket import *
 from math import sin,cos
-import gopigo3
+#import gopigo3
 import time
 #global variables
 THRESHOLD=0.7
@@ -13,34 +13,22 @@ TCPServer_Socket=socket(AF_INET,SOCK_STREAM)
 TCPServer_Socket.bind(ADDR)
 TCPServer_Socket.listen()
 #Previous values
-x_axis_prev=0
-y_axis_prev=0
 check=True
+
+#PID
+ks=20
+ka=0.5
 def get_strength(y,z):
   strength=round(z,2)
   angle=round(y*90/9.8,0)
-  return [strength*cos(angle),strenght*sin(angle)]
-def move(x_axis,y_axis):
-                global check
-                check=False
-                # then move the robot to the left
-                if x_axis < -THRESHOLD:
-                    robot.left()
-                # then move the robot to the right
-                elif x_axis >THRESHOLD:
-                    robot.right()
-                # then move the robot backward
-                elif y_axis < -THRESHOLD:
-                    robot.backward()
-                # if the mouse is moved forward
-                # then move the robot forward
-                elif y_axis >THRESHOLD:
-                    robot.forward()
-                # if the mouse is not moving in any direction
-                # then stop the robot from moving
-                else:
-                    robot.stop()
-                time.sleep(0.1)
+  return [strength,strenght]
+def move(strength,angle):
+                global check,ks,ka
+                left_motor_speed=int(ks*strength+ka*angle)
+                right_motor_speed=int(ks*strength-ka*angle)
+                gopigo3.set_motor_dps(gopigo3.MOTOR_LEFT, dps=left_motor_speed)
+                gopigo3.set_motor_dps(gopigo3.MOTOR_RIGHT, dps=right_motor_speed)
+                time.sleep(0.01)
                 check=True                
 while True:
     print("Waiting for connection ...")
@@ -57,11 +45,10 @@ while True:
                 list_data=data.split(",")
                 if(len(list_data)==3):
                     print(get_strength(float(list_data[1]),float(list_data[2]))   
-                    [x_axis,y_axis]=get_strength(float(list_data[1]),float(list_data[2]))
+                    [strength,angle]=get_strength(float(list_data[1]),float(list_data[2]))
                     if(check):
-                      move(x_axis-x_axis_prev,y_axis-y_axis_prev)
-                    x_axis_prev=x_axis
-                    y_axis_prev=y_axis    
+                      move(strength,angle)
+                  
                   #do something with data from get_strenth firts one is the power and second is the angle
     except KeyboardInterrupt:
         print("Closed")
