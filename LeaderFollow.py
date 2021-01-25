@@ -33,6 +33,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             print("Deviation translation "+str(deviation_translation)+ " Deviation in rotation "+str(deviation_rotation))
             cv2.rectangle(image_taken, (x, y), (x + w, y + h), (0, 0, 255), 2) 
         cv2.imshow("Final",image_taken)
+        rawCapture.truncate(0)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         cv2.destroyAllWindows()
         break
