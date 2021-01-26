@@ -7,8 +7,25 @@ camera = PiCamera()
 camera.resolution = (640, 480)
 camera.framerate = 32
 rawCapture = PiRGBArray(camera, size=(640, 480))
+
+#P controller after ID will be added
+kvelocity=20
+kangle=20
 # allow the camera to set
 time.sleep(0.1)
+
+ratio_to_speed = interpolate.interp1d(x=[1, 30], y=[100, 350], fill_value=(0, 350), bounds_error=False)
+
+def move(velocity,correction):
+	global check,kvelocity,kangle
+	check=False
+	left_motor_speed=int(kvelocity*velocity+kangle*correction)
+	right_motor_speed=int(kvelocity*velocity+kangle*correction)
+	robot.set_motor_dps(robot.MOTOR_LEFT, dps=left_motor_speed)
+	robot.set_motor_dps(robot.MOTOR_RIGHT, dps=right_motor_speed)
+	time.sleep(0.01)
+	check=True
+
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)::
     cv2.namedWindow("Final", cv2.WINDOW_NORMAL)
     image_taken= frame.array
@@ -29,6 +46,11 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             (x, y, w, h) = cv2.boundingRect(c)
             deviation_translation=(w_frame/2-(x+w/2))*100/w_frame
             deviation_rotation=(h_frame-w_frame)*100/h_frame
+            ratio_image= h_frame * w_frame / (h * w)
+            velocity=ratio_to_speed(ratio_image)
+            correction=0.1*deviation_translation+0.9*deviation_rotation
+            if(check):
+                move(velocity,correction)
             #put deviations in PID as a sume of deviations
             print("Deviation translation "+str(deviation_translation)+ " Deviation in rotation "+str(deviation_rotation))
             cv2.rectangle(image_taken, (x, y), (x + w, y + h), (0, 0, 255), 2) 
