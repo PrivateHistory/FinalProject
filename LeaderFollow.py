@@ -13,7 +13,7 @@ kvelocity=20
 kangle=20
 # allow the camera to set
 time.sleep(0.1)
-
+check=True
 ratio_to_speed = interpolate.interp1d(x=[1, 30], y=[100, 350], fill_value=(0, 350), bounds_error=False)
 
 def move(velocity,correction):
