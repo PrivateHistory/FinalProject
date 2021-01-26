@@ -20,7 +20,7 @@ def move(velocity,correction):
 	global check,kvelocity,kangle
 	check=False
 	left_motor_speed=int(kvelocity*velocity+kangle*correction)
-	right_motor_speed=int(kvelocity*velocity+kangle*correction)
+	right_motor_speed=int(kvelocity*velocity-kangle*correction)
 	robot.set_motor_dps(robot.MOTOR_LEFT, dps=left_motor_speed)
 	robot.set_motor_dps(robot.MOTOR_RIGHT, dps=right_motor_speed)
 	time.sleep(0.01)
