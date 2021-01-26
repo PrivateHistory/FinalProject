@@ -56,6 +56,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             deviation_translation=(w_frame/2-(x+w/2))*100/w_frame
             deviation_rotation=(h_frame-w_frame)*100/h_frame
 	    #triangle similarity this will give a distance to the object 
+		#h_frame * w_frame is the total area camera sees and h * w is the area occupied by the object
             ratio_image= h_frame * w_frame / (h * w)
 	    #this is filter to adjust for some distortion
             velocity=ratio_to_speed(ratio_image)
