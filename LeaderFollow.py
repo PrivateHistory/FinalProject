@@ -17,17 +17,18 @@ kangle=20
 time.sleep(0.1)
 check=True
 ratio_to_speed = interpolate.interp1d(x=[1, 30], y=[100, 350], fill_value=(0, 350), bounds_error=False)
-
+#accounts for minimum distance=10cm
+base_velocity=0.1
 def move(velocity,correction):
 	#global variables
-	global check,kvelocity,kangle
+	global check,kvelocity,kangle,base_velocity
 	check=False
 	#velocity component is derived from traingular similarity so if the apparent area occupied by image increases that means that you are close to image 
 	#if apparent area(as seen when taken the picture) of the object decreases you know you are far appart so u can use this to adjust the strength of velocity of wheels
 	#now if the image get distorted or move in some directions u know that the image rotated so u have to rotate the car two that corresponds with complementary correction of wheels
 	#Also it has to be pointed out that all of these have to have bounderies tested practically like cant approch biggern than 10cm and dont try to move the car when rotation is two small
-	left_motor_speed=int(kvelocity*velocity+kangle*correction)
-	right_motor_speed=int(kvelocity*velocity-kangle*correction)
+	left_motor_speed=int(kvelocity*(velocity-base_velocity)+kangle*correction)
+	right_motor_speed=int(kvelocity*(velocity-base_velocity)-kangle*correction)
 	robot.set_motor_dps(robot.MOTOR_LEFT, dps=left_motor_speed)
 	robot.set_motor_dps(robot.MOTOR_RIGHT, dps=right_motor_speed)
 	
