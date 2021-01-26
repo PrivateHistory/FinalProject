@@ -8,8 +8,10 @@ camera.resolution = (640, 480)
 camera.framerate = 32
 rawCapture = PiRGBArray(camera, size=(640, 480))
 
-#P controller after ID will be added
+#P controller after P works  ID will be added
+#Proportional controller to adjust for velocity ,should be tuned practically
 kvelocity=20
+#Proportional controller to adjust for angle 
 kangle=20
 # allow the camera to set
 time.sleep(0.1)
@@ -17,12 +19,18 @@ check=True
 ratio_to_speed = interpolate.interp1d(x=[1, 30], y=[100, 350], fill_value=(0, 350), bounds_error=False)
 
 def move(velocity,correction):
+	#global variables
 	global check,kvelocity,kangle
 	check=False
+	#velocity component is derived from traingular similarity so if the apparent area occupied by image increases that means that you are close to image 
+	#if apparent area(as seen when taken the picture) of the object decreases you know you are far appart so u can use this to adjust the strength of velocity of wheels
+	#now if the image get distorted or move in some directions u know that the image rotated so u have to rotate the car two that corresponds with complementary correction of wheels
+	#Also it has to be pointed out that all of these have to have bounderies tested practically like cant approch biggern than 10cm and dont try to move the car when rotation is two small
 	left_motor_speed=int(kvelocity*velocity+kangle*correction)
 	right_motor_speed=int(kvelocity*velocity-kangle*correction)
 	robot.set_motor_dps(robot.MOTOR_LEFT, dps=left_motor_speed)
 	robot.set_motor_dps(robot.MOTOR_RIGHT, dps=right_motor_speed)
+	
 	time.sleep(0.01)
 	check=True
 
@@ -46,10 +54,14 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             (x, y, w, h) = cv2.boundingRect(c)
             deviation_translation=(w_frame/2-(x+w/2))*100/w_frame
             deviation_rotation=(h_frame-w_frame)*100/h_frame
+	    #triangle similarity this will give a distance to the object 
             ratio_image= h_frame * w_frame / (h * w)
+	    #this is filter to adjust for some distortion
             velocity=ratio_to_speed(ratio_image)
-            correction=0.1*deviation_translation+0.9*deviation_rotation
-            if(check):
+        
+	    correction=0.9*deviation_translation+0.1*deviation_rotation
+            #dont forget to put some limit of distance like actual velocity should be velocity -limit (that limit should be related to 10 cm)
+	    if(check):
                 move(velocity,correction)
             #put deviations in PID as a sume of deviations
             print("Deviation translation "+str(deviation_translation)+ " Deviation in rotation "+str(deviation_rotation))
