@@ -16,10 +16,8 @@ WHEEL_CIRCUMFERENCE = 0.20892 # wheel circumference in meter
 def get distance(x1,x2,y1,y2):
 	return (x1-x2)**2+(y1-y2)**2
 def get_minimum(data):
-	min=100000
-	for car in data:
-	  
-	return min if min!=10000 else -1
+	min=10000  
+	return min
 def position():
     	#Get encoder values
 	Left=robot.get_motor_encoder(robot.MOTOR_LEFT)-Last_Left
