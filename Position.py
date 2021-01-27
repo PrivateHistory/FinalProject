@@ -8,9 +8,10 @@ def position():
     Right=robot.get_motor_encoder(robot.MOTOR_RIGHT)-Last_Right
     #Get distance from encoer 
     distance=min(Left,Right)*WHEEL_CIRCUMFERENCE/360
-    #Save last values
     Last_Left=robot.get_motor_encoder(robot.MOTOR_LEFT)
-    Right=robot.get_motor_encoder(robot.MOTOR_RIGHT)-Last_Right
+    Last_Right=robot.get_motor_encoder(robot.MOTOR_RIGHT)
+    #Save last values
+    
     #Get angle
     angle=(Right-Left)%360
     #Get distances
